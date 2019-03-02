@@ -5,6 +5,8 @@
 #define NUM_VARS 251
 #define NUM_PE 10
 
+#define NUM_LEARN 3000
+
 #define BUF_CLS_SIZE 35
 #define extra_buf_size 20
 #define BUF_DED_SIZE 90
