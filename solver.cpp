@@ -12,6 +12,7 @@ using std::cout;
 using std::endl;
 using std::string;
 using std::to_string;
+using std::vector;
 
 // Util functions for host
 void read_clause_file(string filename, int *c1, int *c2, int *c3,  int *max_size, 
@@ -55,6 +56,46 @@ int main() {
 // Solver starts from here
 
   int local_clauses[NUM_ORG_CLAUSES][3];  
+  char var_truth_table[NUM_VARS] = {U}; // T, F, U (Undef), TF(assigned to T first), FT(assigned to F first)
+  int dec_lvl[NUM_VARS] = {-1};
+  int dec_var[BUF_DEC_LVL]= {0}; // Variable idx at each decision lvl, we assume at most 100 decision level
+  int parent_cls[NUM_VARS] = {0}; 
+  int buf_ded[BUF_DED_SIZE] = {0};
+  int buf_ded_cls[BUF_DED_SIZE] = {-1}; 
+
+  vector<int> pos_cls[NUM_VARS]; 
+  vector<int> neg_cls[NUM_VARS]; 
+
+  int l_ded[BUF_CLS_SIZE];
+  int cls_ded[BUF_CLS_SIZE]; 
+  bool conflict[BUF_CLS_SIZE];
+
+
+  //Other global variables
+  int state = DECISION; 
+  int prev_state = DECISION; 
+  int new_var_idx = 1;
+  int curr_lvl = -1; 
+
+
+/*************************** Loading Clauses ***************************/
+  for (int x = 0; x < NUM_ORG_CLAUSES; ++x) {
+    local_clauses[x][0] = c1[x];
+    local_clauses[x][1] = c2[x];
+    local_clauses[x][2] = c3[x];
+
+    if (c1[x] > 0){
+      pos_cls[c1[x]].push(x);
+    }else{
+      neg_cls[-c1[x]].push(x); 
+    }
+
+
+
+
+  }
+
+
 
 
 
