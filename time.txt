@@ -1,0 +1,3 @@
+TestCase: ./data/uf250/tests/uf250-05.cnf
+Time (Read file) : 0.00196346
+Time(Kernel) : 4.2212e-05
