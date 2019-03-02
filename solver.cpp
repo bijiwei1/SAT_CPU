@@ -18,12 +18,6 @@ using std::vector;
 void read_clause_file(string filename, int *c1, int *c2, int *c3,  int *max_size, 
   const int num_var, const int num_clauses); 
 
-class Var{
-  public : 
-  int value; 
-
-}
-
 int main() {
 
   //initialize timer
@@ -85,15 +79,13 @@ int main() {
     local_clauses[x][2] = c3[x];
 
     if (c1[x] > 0){
-      pos_cls[c1[x]].push(x);
+      pos_cls[c1[x]].push_back(x);
     }else{
-      neg_cls[-c1[x]].push(x); 
+      neg_cls[-c1[x]].push_back(x); 
     }
-
-
-
-
   }
+
+/********************************* FSM **********************************/
 
 
 
