@@ -22,6 +22,10 @@ using std::size_t;
 void read_clause_file(string filename, int *c1, int *c2, int *c3,  int *max_size, 
   const int num_var, const int num_clauses); 
 
+int vacate_learned(int** learned_clauses, int learned_cls_len[NUM_LEARN_1], 
+    int learned_cls_freq[NUM_LEARN_1], int learned_end, int freq);
+
+
 int main() {
 
   //initialize timer
@@ -62,7 +66,7 @@ int main() {
   int pos_cls_nxtidx[NUM_VARS];
   int neg_cls_nxtidx[NUM_VARS];
   int ** learned_clauses = new int*[NUM_LEARN_1];
-  int learned_cls_nxtidx[NUM_LEARN_1]; 
+  int learned_cls_len[NUM_LEARN_1]; 
   int learned_cls_freq[NUM_LEARN_1] = {0};
   int learned_end = -1; 
 
@@ -200,7 +204,7 @@ int main() {
           prop_var = new_var_idx;
         }else if (prev_state == DEDUCTION){
           prop_var = abs(buf_ded_lit.back());
-	  buf_ded_lit.pop_back();
+          buf_ded_lit.pop_back();
         }else if (prev_state == BACKTRACK_DED){
           //prop_var = abs(learned_lit[2]);
           printf("Error1\n"); 
@@ -238,7 +242,7 @@ int main() {
               var_truth_table[abs(l2)] = l2 > 0 ? T : F;
               buf_ded_lit.push_back(l2);
               //printf("Add ded var(%d) due to cls %d -par1 %d(val %d), par2 %d(val %d)\n", l2, cls,
-		//	 parent_lit[abs(l2)][0], var_truth_table[abs(parent_lit[abs(l2)][0])], 
+		        //	 parent_lit[abs(l2)][0], var_truth_table[abs(parent_lit[abs(l2)][0])], 
                 //         parent_lit[abs(l2)][1], var_truth_table[abs(parent_lit[abs(l2)][1])]);
               //dec_ded[abs(l1)] = 1;
             }else if (unsat2 && (var1 == U)){
@@ -250,7 +254,7 @@ int main() {
               buf_ded_lit.push_back(l1);
               var_truth_table[abs(l1)] = l1 > 0 ? T : F;
               //printf("Add ded var(%d) due to cls %d -par1 %d(val %d), par2 %d(val %d)\n", l1, cls,
-		//	 parent_lit[abs(l1)][0], var_truth_table[abs(parent_lit[abs(l1)][0])], 
+		        //	 parent_lit[abs(l1)][0], var_truth_table[abs(parent_lit[abs(l1)][0])], 
                 //         parent_lit[abs(l1)][1], var_truth_table[abs(parent_lit[abs(l1)][1])]);
               //dec_ded[abs(l1)] = 0;
             }
@@ -283,7 +287,7 @@ int main() {
               var_truth_table[abs(l2)] = l2 > 0 ? T : F;
               buf_ded_lit.push_back(l2);
               //printf("Add ded var(%d) due to cls %d -par1 %d(val %d), par2 %d(val %d)\n", l2, cls,
-		//	 parent_lit[abs(l2)][0], var_truth_table[abs(parent_lit[abs(l2)][0])], 
+		        //	 parent_lit[abs(l2)][0], var_truth_table[abs(parent_lit[abs(l2)][0])], 
                 //         parent_lit[abs(l2)][1], var_truth_table[abs(parent_lit[abs(l2)][1])]);
               //dec_ded[abs(l1)] = 1;
             }else if (unsat2 && (var1 == U)){
@@ -295,7 +299,7 @@ int main() {
               var_truth_table[abs(l1)] = l1 > 0 ? T : F;
               buf_ded_lit.push_back(l1);
               //printf("Add ded var(%d) due to cls %d -par1 %d(val %d), par2 %d(val %d)\n", l1 , cls,
-		//	 parent_lit[abs(l1)][0], var_truth_table[abs(parent_lit[abs(l1)][0])], 
+	         	//	 parent_lit[abs(l1)][0], var_truth_table[abs(parent_lit[abs(l1)][0])], 
                 //         parent_lit[abs(l1)][1], var_truth_table[abs(parent_lit[abs(l1)][1])]);
               //dec_ded[abs(l1)] = 0;
             }
@@ -366,12 +370,12 @@ int main() {
 
           vector<int>::iterator it; 
           if (dec_ded[abs(par_lit1)] == 1){
-	    it = find(buf_dec_lit.begin(), buf_dec_lit.end(),par_lit1);
+            it = find(buf_dec_lit.begin(), buf_dec_lit.end(),par_lit1);
             if (it == buf_dec_lit.end()){
               buf_dec_lit.push_back(par_lit1);
             }
           }else{
-	    it = find(buf_ded_lit.begin(), buf_ded_lit.end(),par_lit1);
+            it = find(buf_ded_lit.begin(), buf_ded_lit.end(),par_lit1);
             if (par_lit1 == 0){printf("Error 2 \n");} //FOr debug
 
             if (it == buf_ded_lit.end()){
@@ -380,12 +384,12 @@ int main() {
           }
 
           if (dec_ded[abs(par_lit2)] == 1){
-	    it = find(buf_dec_lit.begin(), buf_dec_lit.end(),par_lit2);
+            it = find(buf_dec_lit.begin(), buf_dec_lit.end(),par_lit2);
             if (it == buf_dec_lit.end()){
               buf_dec_lit.push_back(par_lit2);
             }
           }else{
-	    it = find(buf_ded_lit.begin(), buf_ded_lit.end(),par_lit2);
+            it = find(buf_ded_lit.begin(), buf_ded_lit.end(),par_lit2);
             if (par_lit2 == 0){printf("Error 2 \n");} //FOr debug
 
             if (it == buf_ded_lit.end()){
@@ -406,7 +410,7 @@ int main() {
         learned_end ++;
         learned_clauses[learned_end] = new int[buf_dec_lit.size()];
         new_cls = new int[buf_dec_lit.size()];
-        learned_cls_nxtidx[learned_end] = buf_dec_lit.size();
+        learned_cls_len[learned_end] = buf_dec_lit.size();
 
         idx = 0;
         while (!buf_dec_lit.empty()){
@@ -414,24 +418,23 @@ int main() {
           buf_dec_lit.pop_back();
           idx++; 
         } 
-	
-	for (int i = 0; i < learned_cls_nxtidx[learned_end]; i++){
-	  int max_lit = 0;
+        for (int i = 0; i < learned_cls_len[learned_end]; i++){
+          int max_lit = 0;
           int max_id = 0;
-	  for (int j= 0; j < learned_cls_nxtidx[learned_end]; j++){
-	    if (abs(max_lit) < abs(new_cls[j])){
-	      max_lit = new_cls[j];
+          for (int j= 0; j < learned_cls_len[learned_end]; j++){
+            if (abs(max_lit) < abs(new_cls[j])){
+              max_lit = new_cls[j];
               max_id = j;
             }
-	  }
+          }
           learned_clauses[learned_end][i] = max_lit;
-	  new_cls[max_id] = 0;
-	}	
+          new_cls[max_id] = 0;
+        }	
 
         
 /*
         printf("Add learned clause (%d): ", learned_end);
-	for (int i = 0; i < learned_cls_nxtidx[learned_end]; i++){
+	for (int i = 0; i < learned_cls_len[learned_end]; i++){
 	  printf("%d, ", learned_clauses[learned_end][i]);
 	}
 	printf("\n"); 
@@ -453,7 +456,7 @@ int main() {
         }else if (prev_state == ANALYSIS){
           //printf("ANA -> BACK: \n");
           int foundvar = 0; 
-          for (int i = 0; i < learned_cls_nxtidx[learned_end]; i++){
+          for (int i = 0; i < learned_cls_len[learned_end]; i++){
             int tmp = abs(learned_clauses[learned_end][i]);
             if(var_truth_table[tmp] == T || var_truth_table[tmp] == F){
               foundvar = tmp;
@@ -461,10 +464,10 @@ int main() {
             } 
           }
           back_lvl = (foundvar == 0) ? -1: dec_lvl[foundvar];
-	}else if (prev_state == PROP){
+        }else if (prev_state == PROP){
           //printf("PROP -> BACK: \n");
           back_lvl = dec_lvl[conf_back_var1];
-	}
+        }
 
         if (back_lvl < 0){
           printf("Failed at lvl %d\n", back_lvl);
@@ -511,34 +514,33 @@ if (back_lvl < 22){
         sat_tmp = 1;
         for (int i = 0; i <= learned_end; i++){
           sat_tmp = 0;
-          for (int j = 0; j < learned_cls_nxtidx[i]; j ++){ 
+          for (int j = 0; j < learned_cls_len[i]; j ++){ 
             int lit_tmp = learned_clauses[i][j]; 
             int val_tmp = var_truth_table[abs(lit_tmp)]; 
             sat_tmp |= ((lit_tmp > 0) && (val_tmp == T || val_tmp == FT)) || ((lit_tmp < 0) && (val_tmp == F || val_tmp == TF)) || (val_tmp == U);
             //printf("Var(%d) - val %d, ", lit_tmp, val_tmp);
           }
           if (!sat_tmp){ 
-	    conf_learn_cls1 = i; 
+            conf_learn_cls1 = i; 
             break; 
-	  }
+          }
         }
-
-	if (!sat_tmp){
+        if (!sat_tmp){
           if (prev_state == DECISION){
-	      state = PROP; 
-              var_truth_table[new_var_idx] = (var_truth_table[new_var_idx] == T) ? TF : FT;
-              conf_back_var1 = new_var_idx;
+            state = PROP; 
+            var_truth_table[new_var_idx] = (var_truth_table[new_var_idx] == T) ? TF : FT;
+            conf_back_var1 = new_var_idx;
           }else{
             buf_dec_lit.clear(); 
             buf_ded_lit.clear(); 
-	    for (int i = 0; i < learned_cls_nxtidx[conf_learn_cls1]; ++i){
+            for (int i = 0; i < learned_cls_len[conf_learn_cls1]; ++i){
               par_lit1 = learned_clauses[conf_learn_cls1][i];
               if (dec_ded[abs(par_lit1)]){
                 buf_dec_lit.push_back(par_lit1);
-	      }else{
+              }else{
                 buf_ded_lit.push_back(par_lit1);
-	      }
-	    }
+              }
+            }
 
             while (!buf_ded_lit.empty()){
               int curr_ded_lit = buf_ded_lit.back(); 
@@ -549,12 +551,12 @@ if (back_lvl < 22){
 
               vector<int>::iterator it; 
               if (dec_ded[abs(par_lit1)]){
-	        it = find(buf_dec_lit.begin(), buf_dec_lit.end(),par_lit1);
+                it = find(buf_dec_lit.begin(), buf_dec_lit.end(),par_lit1);
                 if (it == buf_dec_lit.end()){
                   buf_dec_lit.push_back(par_lit1);
                 }
               }else{
-	        it = find(buf_ded_lit.begin(), buf_ded_lit.end(),par_lit1);
+                it = find(buf_ded_lit.begin(), buf_ded_lit.end(),par_lit1);
                 if (par_lit1 == 0){printf("Error 2 \n");} //FOr debug
 
                 if (it == buf_ded_lit.end()){
@@ -563,12 +565,12 @@ if (back_lvl < 22){
               }
 
               if (dec_ded[abs(par_lit2)]){
-	        it = find(buf_dec_lit.begin(), buf_dec_lit.end(),par_lit2);
+                it = find(buf_dec_lit.begin(), buf_dec_lit.end(),par_lit2);
                 if (it == buf_dec_lit.end()){
                   buf_dec_lit.push_back(par_lit2);
                 }
               }else{
-	        it = find(buf_ded_lit.begin(), buf_ded_lit.end(),par_lit2);
+                it = find(buf_ded_lit.begin(), buf_ded_lit.end(),par_lit2);
                 if (par_lit2 == 0){printf("Error 2 \n");} //FOr debug
 
                 if (it == buf_ded_lit.end()){
@@ -586,24 +588,30 @@ if (back_lvl < 22){
             printf("\n");
 */
             conf_back_var1 = 0;
-	    for (int i = 0; i < buf_dec_lit.size(); i++){
+            for (int i = 0; i < buf_dec_lit.size(); i++){
               int var_tmp = abs(buf_dec_lit.at(i));
               conf_back_var1 = (dec_lvl[var_tmp] > dec_lvl[conf_back_var1]) && (var_truth_table[var_tmp] == T ||  var_truth_table[var_tmp] == F) ? var_tmp : conf_back_var1;
             }
             if (conf_back_var1 == 0){
-	      state = FAILED;
-	    }else{
-	      state = BACKTRACK_DEC;
-	    }
+              state = FAILED;
+            }else{
+              state = BACKTRACK_DEC;
+            }
 
-	    learned_cls_freq[conf_learn_cls1] ++;
-            if (learned_cls_freq[conf_learn_cls1] > 20){
-              learned_cls_freq[conf_learn_cls1] = 0;
+            learned_cls_freq[conf_learn_cls1] ++;
+            if (learned_cls_freq[conf_learn_cls1] > 20){ 
               printf("Hot conflict cls %d\n", conf_learn_cls1);
-	    }
-	  }//End of if-else
+              learned_end = vacate_learned(learned_clauses, learned_cls_len, learned_cls_freq, learned_end, 20); 
+              for (int i = 0; i <= learned_end; i++){
+                printf("Cls %d \n", i);
+                for (int j = 0; j < learned_cls_len[i]; j++){
+                  printf("%d, ", learned_clauses[i][j]);
+                }
+              }
+            }
+          }//End of if-else
           //printf("Prop conflict due to learned cls1 %d(backvar %d (val %d))\n", conf_learn_cls1, conf_back_var1, var_truth_table[conf_back_var1]);
-	}//End of sat
+        }//End of sat
 
         prev_state = PROP; 
         state = sat_tmp ? DEDUCTION : state;

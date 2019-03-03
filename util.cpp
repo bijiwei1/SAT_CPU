@@ -220,3 +220,24 @@ void findDecParent(){
 
 }
 */
+
+int vacate_learned(int** learned_clauses, int learned_cls_len[NUM_LEARN_1], 
+    int learned_cls_freq[NUM_LEARN_1], int learned_end, int freq){
+
+  int new_learned_end = -1;
+  
+  for (int i = 0; i <= learned_end; i++){
+    if (learned_cls_freq[i] > freq){
+      new_learned_end ++; 
+      learned_clauses[new_learned_end] = new int[learned_cls_len[i]];
+      for (int j = 0; j < learned_cls_len[i]; j++){
+        learned_clauses[new_learned_end][j] = learned_clauses[i][j];
+      } 
+      learned_cls_len[new_learned_end] = learned_cls_len[i]; 
+    }
+    delete[] learned_clauses[i];
+    learned_cls_freq[i] = 0; 
+  }
+  
+  return new_learned_end; 
+}
