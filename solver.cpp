@@ -43,10 +43,10 @@ int main() {
   //std::string test_file="test"+to_string(test_idx);
   //for (int i = 1; i <= NUM_TEST; ++i) { 
   //for (int i = 1; i <= 5; ++i) { 
-    int i = 3;
+    int i = 5;
     auto ts1=std::chrono::high_resolution_clock::now(); 
-    //std::string first("./data/uf250/tests/uf250-0");
-    std::string first("./data/uuf250/tests/uuf250-0");
+    std::string first("./data/uf250/tests/uf250-0");
+//    std::string first("./data/uuf250/tests/uuf250-0");
     std::string f_end(".cnf");
     std::string fileName=first+std::to_string(i)+f_end;
     read_clause_file(fileName, c1, c2, c3, max_size, NUM_VARS, NUM_ORG_CLAUSES);
@@ -206,7 +206,6 @@ int main() {
           prop_var = abs(buf_ded_lit.back());
           buf_ded_lit.pop_back();
         }else if (prev_state == BACKTRACK_DED){
-          //prop_var = abs(learned_lit[2]);
           printf("Error1\n"); 
         }
         prev_state = DEDUCTION;
@@ -487,8 +486,7 @@ if (back_lvl < 22){
             dec_lvl[i] = -1; 
             dec_ded[i] = 0; 
             parent_cls[i] = -1;
-            parent_lit[i][0] = 0;
-            parent_lit[i][1] = 0;
+            parent_lit[i] = {0,0};
           }
         }
 
@@ -525,6 +523,7 @@ if (back_lvl < 22){
             break; 
           }
         }
+
         if (!sat_tmp){
           if (prev_state == DECISION){
             state = PROP; 
@@ -533,7 +532,7 @@ if (back_lvl < 22){
           }else{
             buf_dec_lit.clear(); 
             buf_ded_lit.clear(); 
-            for (int i = 0; i < learned_cls_len[conf_learn_cls1]; ++i){
+            for (int i = 0; i < learned_cls_len[conf_learn_cls1]; i++){
               par_lit1 = learned_clauses[conf_learn_cls1][i];
               if (dec_ded[abs(par_lit1)]){
                 buf_dec_lit.push_back(par_lit1);
@@ -557,8 +556,6 @@ if (back_lvl < 22){
                 }
               }else{
                 it = find(buf_ded_lit.begin(), buf_ded_lit.end(),par_lit1);
-                if (par_lit1 == 0){printf("Error 2 \n");} //FOr debug
-
                 if (it == buf_ded_lit.end()){
                   buf_ded_lit.push_back(par_lit1);
                 }
@@ -571,8 +568,6 @@ if (back_lvl < 22){
                 }
               }else{
                 it = find(buf_ded_lit.begin(), buf_ded_lit.end(),par_lit2);
-                if (par_lit2 == 0){printf("Error 2 \n");} //FOr debug
-
                 if (it == buf_ded_lit.end()){
                   buf_ded_lit.push_back(par_lit2);
                 }
@@ -594,6 +589,7 @@ if (back_lvl < 22){
             }
             if (conf_back_var1 == 0){
               state = FAILED;
+              printf("Prop conflict due to learned cls1 %d(backvar %d (val %d))\n", conf_learn_cls1, conf_back_var1, var_truth_table[conf_back_var1]);
             }else{
               state = BACKTRACK_DEC;
             }
@@ -662,11 +658,6 @@ if (back_lvl < 22){
     auto ts3 = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> readtime2 = ts3 -ts2; 
     wf << "Time(Kernel) : " << readtime2.count() << endl; 
-    if (result[0] == 0){
-        cout<< "Failed"<<endl;
-    }else{
-        cout << "Succeed" << endl; 
-    }
 //}//Comment this out for testing
 
   auto end=std::chrono::high_resolution_clock::now();
