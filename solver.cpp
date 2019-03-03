@@ -8,6 +8,7 @@
 //#include <bits/stdc++.h> 
 
 #include <config.h>
+#include <Var.h>
 #include <util.cpp>
 
 using namespace std;
@@ -25,52 +26,7 @@ void read_clause_file(string filename, int *c1, int *c2, int *c3,  int *max_size
 int vacate_learned(int** learned_clauses, int learned_cls_len[NUM_LEARN_1], 
     int learned_cls_freq[NUM_LEARN_1], int learned_end, int freq);
 
-void find_decvar(vector<int> &buf_dec_lit, vector<int> &buf_ded_lit, 
-  int parent_lit[NUM_VARS][2], bool dec_ded[NUM_VARS]);
-
-
-class Variable { 
-
-public: 
-  char value;  // T, F, U (Undef), TF(assigned to T first), FT(assigned to F first)
-  int dec_lvl; 
-  int parent_cls; 
-  int parent_lit[2]; 
-  bool dec_ded; //dec - 1, ded - 0
-  int* pos_cls;
-  int* neg_cls;  
-  int pos_cls_nxtidx; 
-  int neg_cls_nxtidx; 
-
-  // Default Constructor 
-  construct() 
-  { 
-    value = U; 
-    dec_lvl = -1; 
-    parent_cls = -1;
-    parent_lit = {0, 0};
-    dec_ded = 1; 
-  } 
-
-  reset(){
-    value = U; 
-    dec_lvl = -1; 
-    parent_cls = -1;
-    parent_lit = {0, 0};
-    dec_ded = 1;
-  }
-
-  assignment(value_new, dec_lvl_new, parent_cls_new, parent_lit1, parent_lit2, dec_ded_new){
-    value = value_new; 
-    dec_lvl = dec_lvl_new; 
-    parent_cls = parent_cls_new;
-    parent_lit[0] = parent_lit1;
-    parent_lit[1] = parent_lit2;
-    dec_ded = dec_ded_new;
-  }
-
-
-}; 
+void find_decvar(vector<int> &buf_dec_lit, vector<int> &buf_ded_lit, Variable vars[NUM_VARS]);
 
 
 int main() {
@@ -82,8 +38,6 @@ int main() {
   int *c2 = (int *)malloc(sizeof(int) * NUM_ORG_CLAUSES);
   int *c3 = (int *)malloc(sizeof(int) * NUM_ORG_CLAUSES);
   int *max_size = (int *)malloc(sizeof(int) * 1); 
- 
-  int *result = (int *)malloc(sizeof(int));
 
   // Prepare data
   //std::string test_file="test"+to_string(test_idx);
@@ -145,6 +99,7 @@ int main() {
   bool tot_conflict; 
   int* new_cls; //ANA
   bool sat_tmp;
+  int newval;
 
 /*************************** Intializing  ******************************/
 
@@ -179,15 +134,15 @@ int main() {
   free(c3);
 
   for (int x = 1; x < NUM_VARS; x++){
-    vars[x].pos_cls[x] = new int[pos_cls_vec[x].size()];
-    vars[x].neg_cls[x] = new int[neg_cls_vec[x].size()];
+    vars[x].pos_cls = new int[pos_cls_vec[x].size()];
+    vars[x].neg_cls = new int[neg_cls_vec[x].size()];
     vars[x].pos_cls_nxtidx= pos_cls_vec[x].size();
     vars[x].neg_cls_nxtidx = neg_cls_vec[x].size();
     
     idx =0; 
     //for (vector<int>::iterator it =pos_cls_tmp.begin(); it<pos_cls_vec.end(); it++){
     while (idx < vars[x].pos_cls_nxtidx){
-      vars.pos_cls[idx] = pos_cls_vec[x].at(idx);
+      vars[x].pos_cls[idx] = pos_cls_vec[x].at(idx);
       idx++;
     }  
 
@@ -200,7 +155,7 @@ int main() {
     neg_cls_vec[x].clear(); 
   }
 
-
+/*
   for (int x = 1; x < NUM_VARS; x++){
     printf("Var (%d) Pos cls(%d): ", x, vars[x].pos_cls_nxtidx);
     for (int y = 0; y < vars[x].pos_cls_nxtidx; y++){
@@ -214,6 +169,7 @@ int main() {
     }
     printf("\n");
   }
+*/
 
 /********************************* FSM **********************************/
   while (state != EXIT){
@@ -235,10 +191,10 @@ int main() {
 
         
         curr_lvl ++; 
-        int newval = vars[new_var_idx].pos_cls_nxtidx > vars[new_var_idx].neg_cls_nxtidx ? T : F; 
-        assignment(newval, curr_lvl, 0, 0, 0, 1); 
+        newval = vars[new_var_idx].pos_cls_nxtidx > vars[new_var_idx].neg_cls_nxtidx ? T : F; 
+        vars[new_var_idx].assignment(newval, curr_lvl, 0, 0, 0, 1); 
         dec_var[curr_lvl] = new_var_idx;
-//        printf("Decide Var(%d) - at lvl %d\n", new_var_idx, curr_lvl);
+        printf("Decide Var(%d) - at lvl %d\n", new_var_idx, curr_lvl);
         state = PROP;
         break;
 
@@ -253,7 +209,7 @@ int main() {
         }
         prev_state = DEDUCTION;
 
-        //printf("Prop ded Var(%d): %d at lvl %d\n", prop_var, var_truth_table[prop_var], curr_lvl);
+        //printf("Prop ded Var(%d): %d at lvl %d\n", prop_var, vars[prop_var].value, curr_lvl);
         int l1, l2, var1, var2;
         bool unsat1, unsat2;  
         if (vars[prop_var].value == T || vars[prop_var].value == FT){
@@ -272,23 +228,21 @@ int main() {
               conf_parents_lit[0] = l1; 
               conf_parents_lit[1] = l2; 
               buf_ded_lit.clear();
-              //printf("Found conflict - Var (%d) due to conf_cls %d\n", prop_var, conf_cls);
+              printf("Found conflict - Var (%d) due to conf_cls %d\n", prop_var, conf_cls);
               break;
             }else if (unsat1 && (var2 == U)){
               //Change ded value here
               int newval = l2 > 0 ? T : F;
               vars[abs(l2)].assignment(newval, curr_lvl, cls, -prop_var, l1, 0); 
               buf_ded_lit.push_back(l2);
-              //printf("Add ded var(%d) due to cls %d -par1 %d(val %d), par2 %d(val %d)\n", l2, cls,
-		        //	 parent_lit[abs(l2)][0], var_truth_table[abs(parent_lit[abs(l2)][0])], 
-                //         parent_lit[abs(l2)][1], var_truth_table[abs(parent_lit[abs(l2)][1])]);
+              printf("Add ded var(%d) due to cls %d --- ", l2, cls);
+              vars[abs(l2)].print();
             }else if (unsat2 && (var1 == U)){
               int newval = l1 > 0 ? T : F;
               vars[abs(l1)].assignment(newval, curr_lvl, cls, -prop_var, l2, 0); 
               buf_ded_lit.push_back(l1);
-              //printf("Add ded var(%d) due to cls %d -par1 %d(val %d), par2 %d(val %d)\n", l1, cls,
-		        //	 parent_lit[abs(l1)][0], var_truth_table[abs(parent_lit[abs(l1)][0])], 
-                //         parent_lit[abs(l1)][1], var_truth_table[abs(parent_lit[abs(l1)][1])]);
+              printf("Add ded var(%d) due to cls %d --- ", l1, cls);
+              vars[abs(l1)].print();
             }
           }
         }else{
@@ -307,23 +261,21 @@ int main() {
               conf_parents_lit[0] = l1; 
               conf_parents_lit[1] = l2; 
               buf_ded_lit.clear();
-              //printf("Found conflict - Var (%d) due to conf_cls %d\n", prop_var, conf_cls);
+              printf("Found conflict - Var (%d) due to conf_cls %d\n", prop_var, conf_cls);
               break;
             }else if (unsat1 && (var2 == U)){
               //Change ded value here
               int newval = l2 > 0 ? T : F;
               vars[abs(l2)].assignment(newval, curr_lvl, cls, prop_var, l1, 0); 
               buf_ded_lit.push_back(l2);
-              //printf("Add ded var(%d) due to cls %d -par1 %d(val %d), par2 %d(val %d)\n", l2, cls,
-		        //	 parent_lit[abs(l2)][0], var_truth_table[abs(parent_lit[abs(l2)][0])], 
-                //         parent_lit[abs(l2)][1], var_truth_table[abs(parent_lit[abs(l2)][1])]);
+              printf("Add ded var(%d) due to cls %d --- ", l2, cls);
+              vars[abs(l2)].print();
             }else if (unsat2 && (var1 == U)){
               int newval = l1 > 0 ? T : F;
               vars[abs(l1)].assignment(newval, curr_lvl, cls, prop_var, l2, 0); 
               buf_ded_lit.push_back(l1);
-              //printf("Add ded var(%d) due to cls %d -par1 %d(val %d), par2 %d(val %d)\n", l1 , cls,
-	         	//	 parent_lit[abs(l1)][0], var_truth_table[abs(parent_lit[abs(l1)][0])], 
-                //         parent_lit[abs(l1)][1], var_truth_table[abs(parent_lit[abs(l1)][1])]);
+              printf("Add ded var(%d) due to cls %d --- ", l1, cls);
+              vars[abs(l1)].print();
             }
           }
         }
@@ -341,11 +293,11 @@ int main() {
         buf_dec_lit_sort.clear();
         par_lit1 = vars[conf_var].parent_lit[0];
         par_lit2 = vars[conf_var].parent_lit[1];
-/*
-        printf("Conflict Var(%d), conf cls(%d), parent cls (%d)\n", conf_var, conf_cls, parent_cls[conf_var]);
-        printf("Conf Lit: %d(%d), %d(%d)\n", conf_parents_lit[0], vars[abs(conf_parents_lit[0])].dec_lvl, conf_parents_lit[1], dec_lvl[abs(conf_parents_lit[1])]);
+
+        printf("Conflict Var(%d), conf cls(%d), parent cls (%d)\n", conf_var, conf_cls, vars[conf_var].parent_cls);
+        printf("Conf Lit: %d(%d), %d(%d)\n", conf_parents_lit[0], vars[abs(conf_parents_lit[0])].dec_lvl, conf_parents_lit[1], vars[abs(conf_parents_lit[1])].dec_lvl);
         printf("Parent Lit: %d(%d), %d(%d)\n", par_lit1, vars[abs(par_lit1)].dec_lvl, par_lit2, vars[abs(par_lit2)].dec_lvl);
-*/
+
         if (vars[abs(par_lit1)].dec_ded == 1){
           buf_dec_lit.push_back(par_lit1);
         }else{
@@ -390,8 +342,8 @@ int main() {
 	for (int i = 0; i < buf_dec_lit.size(); i++){
           printf("%d, ", buf_dec_lit.at(i));
         }
-        printf("\n");
-*/
+        printf("\n"); */
+
         learned_end ++;
         learned_clauses[learned_end] = new int[buf_dec_lit.size()];
         new_cls = new int[buf_dec_lit.size()];
@@ -417,20 +369,19 @@ int main() {
         }	
 
         
-/*
         printf("Add learned clause (%d): ", learned_end);
 	for (int i = 0; i < learned_cls_len[learned_end]; i++){
 	  printf("%d, ", learned_clauses[learned_end][i]);
 	}
 	printf("\n"); 
-*/
+
         state = BACKTRACK_DEC; 
         break; 
 
       case BACKTRACK_DEC: 
         //printf("State = BACKTRACK_DEC; ");
         if (prev_state == DEDUCTION){
-          //printf("DED -> BACK: \n");
+          printf("DED -> BACK: \n");
           back_lvl = curr_lvl; 
           while(vars[dec_var[back_lvl]].value == TF || vars[dec_var[back_lvl]].value == FT){
             back_lvl --; 
@@ -439,18 +390,24 @@ int main() {
             }
           }
         }else if (prev_state == ANALYSIS){
-          //printf("ANA -> BACK: \n");
+          printf("ANA -> BACK: \n");
           int foundvar = 0; 
+          //FOr ebugd
+          if (learned_end <0){ printf("Error");
+            assert(0);
+	  }
           for (int i = 0; i < learned_cls_len[learned_end]; i++){
             int tmp = abs(learned_clauses[learned_end][i]);
+            printf("%d(val %d), ", tmp, vars[tmp].value);
             if(vars[tmp].value == T || vars[tmp].value == F){
               foundvar = tmp;
+              printf("\n Found value %d\n", foundvar);
               break;
             } 
           }
-          back_lvl = (foundvar == 0) ? -1: vars[foundvar].dec_lvl;
+          back_lvl = (foundvar == 0)  ? -1: vars[foundvar].dec_lvl;
         }else if (prev_state == PROP){
-          //printf("PROP -> BACK: \n");
+          printf("PROP -> BACK: \n");
           back_lvl = vars[conf_back_var1].dec_lvl;
         }
 
@@ -460,11 +417,9 @@ int main() {
           break;
         }
 
-if (back_lvl < 22){
         printf("Back to lvl %d - Var %d\n", back_lvl, dec_var[back_lvl]);
-}
 
-        prev_assigned_value = cars[dec_var[back_lvl]].value; 
+        prev_assigned_value = vars[dec_var[back_lvl]].value; 
         //Undo all variable assignment after back_lvl
         for (int i = 0; i < NUM_VARS; i ++){
           if (vars[i].dec_lvl >= back_lvl){
@@ -481,7 +436,7 @@ if (back_lvl < 22){
 
         new_var_idx = dec_var[back_lvl];
         vars[new_var_idx].value = (prev_assigned_value == T) ? TF : FT;
-//        printf("Reassign Var(%d) - %d\n", new_var_idx, var_truth_table[new_var_idx]);
+        printf("Reassign Var(%d) - %d\n", new_var_idx, vars[new_var_idx].value);
         vars[new_var_idx].dec_lvl = back_lvl;
         vars[new_var_idx].dec_ded = 1;
         curr_lvl = back_lvl;
@@ -511,6 +466,7 @@ if (back_lvl < 22){
             state = PROP; 
             vars[new_var_idx].value = (vars[new_var_idx].value == T) ? TF : FT;
             conf_back_var1 = new_var_idx;
+            printf("Prop: change assigned Var(%d) - %d due to learned cls (%d)\n", new_var_idx, vars[new_var_idx].value, conf_learn_cls1);
           }else{
             buf_dec_lit.clear(); 
             buf_ded_lit.clear(); 
@@ -524,14 +480,15 @@ if (back_lvl < 22){
             }
 
             find_decvar(buf_dec_lit, buf_ded_lit, vars);
+
 	    //For debug
-	    /*
 	    printf("Final buf_dec_lit : ");
 	    for (int i = 0; i < buf_dec_lit.size(); i++){
-              printf("%d(val %d), ", buf_dec_lit.at(i), var_truth_table[abs(buf_dec_lit.at(i))]);
+              printf("%d(val %d), ", buf_dec_lit.at(i), vars[abs(buf_dec_lit.at(i))].value);
             }
             printf("\n");
-*/
+
+
             conf_back_var1 = 0;
             for (int i = 0; i < buf_dec_lit.size(); i++){
               int var_tmp = abs(buf_dec_lit.at(i));
@@ -603,7 +560,6 @@ if (back_lvl < 22){
   }//end of while
 
 
-
 // End here
     auto ts3 = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> readtime2 = ts3 -ts2; 
@@ -613,8 +569,5 @@ if (back_lvl < 22){
   auto end=std::chrono::high_resolution_clock::now();
   std::chrono::duration<double> total=end-start;
   cout<< "Time(total) : "<<total.count() <<endl;
-  free(c1);
-  free(c2);
-  free(c3);
   return 0;
 }
