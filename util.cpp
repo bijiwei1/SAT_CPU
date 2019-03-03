@@ -113,18 +113,18 @@ int vacate_learned(int** learned_clauses, int learned_cls_len[NUM_LEARN_1],
 
 
 void find_decvar(vector<int> &buf_dec_lit, vector<int> &buf_ded_lit, 
-  int parent_lit[NUM_VARS][2], bool dec_ded[NUM_VARS]){
+  Variable vars[NUM_VARS]){
 
   int par_lit1, par_lit2; 
    while (!buf_ded_lit.empty()){
       int curr_ded_lit = buf_ded_lit.back(); 
       buf_ded_lit.pop_back();
-      par_lit1 = parent_lit[abs(curr_ded_lit)][0];
-      par_lit2 = parent_lit[abs(curr_ded_lit)][1];
+      par_lit1 = vars[abs(curr_ded_lit)].parent_lit[0];
+      par_lit2 = vars[abs(curr_ded_lit)].parent_lit[1];
       //printf("Var(%d)- par1 %d , par2 %d\n", curr_ded_lit, par_lit1, par_lit2);
 
       vector<int>::iterator it; 
-      if (dec_ded[abs(par_lit1)]){
+      if (vars[abs(par_lit1)].dec_ded){
         it = find(buf_dec_lit.begin(), buf_dec_lit.end(),par_lit1);
         if (it == buf_dec_lit.end()){
           buf_dec_lit.push_back(par_lit1);
@@ -136,7 +136,7 @@ void find_decvar(vector<int> &buf_dec_lit, vector<int> &buf_ded_lit,
         }
       }
 
-      if (dec_ded[abs(par_lit2)]){
+      if (vars[abs(par_lit2)].dec_ded){
         it = find(buf_dec_lit.begin(), buf_dec_lit.end(),par_lit2);
         if (it == buf_dec_lit.end()){
           buf_dec_lit.push_back(par_lit2);
