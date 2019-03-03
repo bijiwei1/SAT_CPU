@@ -63,6 +63,7 @@ int main() {
   int neg_cls_nxtidx[NUM_VARS];
   int ** learned_clauses = new int*[NUM_LEARN_1];
   int learned_cls_nxtidx[NUM_LEARN_1]; 
+  int learned_cls_freq[NUM_LEARN_1] = {0};
   int learned_end = -1; 
 
   // Variable assignment information
@@ -471,7 +472,7 @@ int main() {
           break;
         }
 
-if (back_lvl < 30){
+if (back_lvl < 22){
         printf("Back to lvl %d - Var %d\n", back_lvl, dec_var[back_lvl]);
 }
 
@@ -593,6 +594,12 @@ if (back_lvl < 30){
 	      state = FAILED;
 	    }else{
 	      state = BACKTRACK_DEC;
+	    }
+
+	    learned_cls_freq[conf_learn_cls1] ++;
+            if (learned_cls_freq[conf_learn_cls1] > 20){
+              learned_cls_freq[conf_learn_cls1] = 0;
+              printf("Hot conflict cls %d\n", conf_learn_cls1);
 	    }
 	  }//End of if-else
           //printf("Prop conflict due to learned cls1 %d(backvar %d (val %d))\n", conf_learn_cls1, conf_back_var1, var_truth_table[conf_back_var1]);
