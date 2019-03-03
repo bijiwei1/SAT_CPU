@@ -25,6 +25,8 @@ void read_clause_file(string filename, int *c1, int *c2, int *c3,  int *max_size
 int vacate_learned(int** learned_clauses, int learned_cls_len[NUM_LEARN_1], 
     int learned_cls_freq[NUM_LEARN_1], int learned_end, int freq);
 
+void find_decvar(vector<int> &buf_dec_lit, vector<int> &buf_ded_lit, 
+  int parent_lit[NUM_VARS][2], bool dec_ded[NUM_VARS]);
 
 int main() {
 
@@ -359,14 +361,15 @@ int main() {
         }
         printf("\n");
 */
-
+        find_decvar(&buf_dec_lit, &buf_ded_lit, parent_lit, dec_ded);
+        /*
         while (!buf_ded_lit.empty()){
           int curr_ded_lit = buf_ded_lit.back(); 
           buf_ded_lit.pop_back();
           par_lit1 = parent_lit[abs(curr_ded_lit)][0];
           par_lit2 = parent_lit[abs(curr_ded_lit)][1];
           //printf("Var(%d)- par1 %d , par2 %d\n", curr_ded_lit, par_lit1, par_lit2);
-
+          
           vector<int>::iterator it; 
           if (dec_ded[abs(par_lit1)] == 1){
             it = find(buf_dec_lit.begin(), buf_dec_lit.end(),par_lit1);
@@ -395,7 +398,8 @@ int main() {
               buf_ded_lit.push_back(par_lit2);
             }
           }
-        }
+          
+        }*/
 
 	//For debug
 	/*
@@ -405,7 +409,6 @@ int main() {
         }
         printf("\n");
 */
-
         learned_end ++;
         learned_clauses[learned_end] = new int[buf_dec_lit.size()];
         new_cls = new int[buf_dec_lit.size()];
@@ -541,6 +544,9 @@ if (back_lvl < 22){
               }
             }
 
+            find_decvar(&buf_dec_lit, &buf_ded_lit, parent_lit, dec_ded);
+
+            /*
             while (!buf_ded_lit.empty()){
               int curr_ded_lit = buf_ded_lit.back(); 
               buf_ded_lit.pop_back();
@@ -573,7 +579,7 @@ if (back_lvl < 22){
                 }
               }
             }//End of while loop
-
+            */
 	    //For debug
 	    /*
 	    printf("Final buf_dec_lit : ");

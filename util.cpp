@@ -83,95 +83,6 @@ void read_clause_file(string filename, int *c1, int *c2, int *c3, int *max_size,
   }
   max_size[0] = max; 
   cout << "Max size " << max << endl; 
-
-/*
-  int bound1 = 14;
-  int bound2 = 11; 
-  std::vector<int> v1, v2, v3;
-  for (int i = 1; i < num_var; i++){
-    if (max_cls_size[i] > bound1){
-      v1.push_back(i);
-    }else if (max_cls_size[3] >= bound2){
-      v2.push_back(i); 
-    }else{
-      v3.push_back(i);
-    }
-  }
-
-  int new_idx = 1; 
-  printf("Vector Size: %d, %d, %d\n", v1.size(), v2.size(), v3.size());
-  for (int i = 0; i < v1.size(); i++){
-    int curr_idx = v1.at(i); 
-    for (int j = 1; j < num_clauses; j++){
-      if (c1_local[j] == curr_idx){
-        c1[j] = new_idx; 
-      }else if (c1_local[j] == -curr_idx){
-        c1[j] = -new_idx;
-      }
-
-      if (c2_local[j] == curr_idx){
-        c2[j] = new_idx; 
-      }else if (c2_local[j] == -curr_idx){
-        c2[j] = -new_idx;
-      }
-
-      if (c3_local[j] == curr_idx){
-        c3[j] = new_idx; 
-      }else if (c3_local[j] == -curr_idx){
-        c3[j] = -new_idx;
-      }
-    }
-    new_idx ++; 
-  }
-
-  for (int i = 0; i < v2.size(); i++){
-    int curr_idx = v2.at(i); 
-    for (int j = 1; j < num_clauses; j++){
-      if (c1_local[j] == curr_idx){
-        c1[j] = new_idx; 
-      }else if (c1_local[j] == -curr_idx){
-        c1[j] = -new_idx;
-      }
-
-      if (c2_local[j] == curr_idx){
-        c2[j] = new_idx; 
-      }else if (c2_local[j] == -curr_idx){
-        c2[j] = -new_idx;
-      }
-
-      if (c3_local[j] == curr_idx){
-        c3[j] = new_idx; 
-      }else if (c3_local[j] == -curr_idx){
-        c3[j] = -new_idx;
-      }
-    }
-    new_idx ++; 
-  }
-
-  for (int i = 0; i < v3.size(); i++){
-    int curr_idx = v3.at(i); 
-    for (int j = 1; j < num_clauses; j++){
-      if (c1_local[j] == curr_idx){
-        c1[j] = new_idx; 
-      }else if (c1_local[j] == -curr_idx){
-        c1[j] = -new_idx;
-      }
-
-      if (c2_local[j] == curr_idx){
-        c2[j] = new_idx; 
-      }else if (c2_local[j] == -curr_idx){
-        c2[j] = -new_idx;
-      }
-
-      if (c3_local[j] == curr_idx){
-        c3[j] = new_idx; 
-      }else if (c3_local[j] == -curr_idx){
-        c3[j] = -new_idx;
-      }
-    }
-    new_idx ++; 
-  }*/
-
   cout << "Number of clauses : " << cnt << endl << "Finish reading file" << endl;
 
   f.close();
@@ -198,4 +109,44 @@ int vacate_learned(int** learned_clauses, int learned_cls_len[NUM_LEARN_1],
   }
 
   return new_learned_end; 
+}
+
+
+void find_decvar(vector<int> &buf_dec_lit, vector<int> &buf_ded_lit, 
+  int parent_lit[NUM_VARS][2], bool dec_ded[NUM_VARS]){
+
+  int par_lit1, par_lit2; 
+   while (!buf_ded_lit.empty()){
+      int curr_ded_lit = buf_ded_lit.back(); 
+      buf_ded_lit.pop_back();
+      par_lit1 = parent_lit[abs(curr_ded_lit)][0];
+      par_lit2 = parent_lit[abs(curr_ded_lit)][1];
+      //printf("Var(%d)- par1 %d , par2 %d\n", curr_ded_lit, par_lit1, par_lit2);
+
+      vector<int>::iterator it; 
+      if (dec_ded[abs(par_lit1)]){
+        it = find(buf_dec_lit.begin(), buf_dec_lit.end(),par_lit1);
+        if (it == buf_dec_lit.end()){
+          buf_dec_lit.push_back(par_lit1);
+        }
+      }else{
+        it = find(buf_ded_lit.begin(), buf_ded_lit.end(),par_lit1);
+        if (it == buf_ded_lit.end()){
+          buf_ded_lit.push_back(par_lit1);
+        }
+      }
+
+      if (dec_ded[abs(par_lit2)]){
+        it = find(buf_dec_lit.begin(), buf_dec_lit.end(),par_lit2);
+        if (it == buf_dec_lit.end()){
+          buf_dec_lit.push_back(par_lit2);
+        }
+      }else{
+        it = find(buf_ded_lit.begin(), buf_ded_lit.end(),par_lit2);
+        if (it == buf_ded_lit.end()){
+          buf_ded_lit.push_back(par_lit2);
+        }
+      }
+    }
+
 }
