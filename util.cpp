@@ -178,55 +178,13 @@ void read_clause_file(string filename, int *c1, int *c2, int *c3, int *max_size,
   return ;
 }
 
-/*
-void findDecParent(){
-
-  while (!buf_ded_lit.empty()){
-     int curr_ded_lit = buf_ded_lit.back(); 
-     buf_ded_lit.pop_back();
-     par_lit1 = parent_lit[abs(curr_ded_lit)][0];
-     par_lit2 = parent_lit[abs(curr_ded_lit)][1];
-     //printf("Var(%d)- par1 %d , par2 %d\n", curr_ded_lit, par_lit1, par_lit2);
-  
-     vector<int>::iterator it; 
-     if (dec_ded[abs(par_lit1)] == 1){
-       it = find(buf_dec_lit.begin(), buf_dec_lit.end(),par_lit1);
-       if (it == buf_dec_lit.end()){
-         buf_dec_lit.push_back(par_lit1);
-       }
-     }else{
-       it = find(buf_ded_lit.begin(), buf_ded_lit.end(),par_lit1);
-       if (par_lit1 == 0){printf("Error 2 \n");} //FOr debug
-  
-       if (it == buf_ded_lit.end()){
-         buf_ded_lit.push_back(par_lit1);
-       }
-     }
-  
-     if (dec_ded[abs(par_lit2)] == 1){
-       it = find(buf_dec_lit.begin(), buf_dec_lit.end(),par_lit2);
-       if (it == buf_dec_lit.end()){
-         buf_dec_lit.push_back(par_lit2);
-       }
-     }else{
-       it = find(buf_ded_lit.begin(), buf_ded_lit.end(),par_lit2);
-       if (par_lit2 == 0){printf("Error 2 \n");} //FOr debug
-  
-       if (it == buf_ded_lit.end()){
-         buf_ded_lit.push_back(par_lit2);
-       }
-     }
-  }
-
-}
-*/
-
 int vacate_learned(int** learned_clauses, int learned_cls_len[NUM_LEARN_1], 
     int learned_cls_freq[NUM_LEARN_1], int learned_end, int freq){
 
   int new_learned_end = -1;
-  
-  for (int i = 0; i <= learned_end; i++){
+  delete[] learned_clauses[0];
+
+  for (int i = 1; i <= learned_end; i++){
     if (learned_cls_freq[i] > freq){
       new_learned_end ++; 
       learned_clauses[new_learned_end] = new int[learned_cls_len[i]];
@@ -238,6 +196,6 @@ int vacate_learned(int** learned_clauses, int learned_cls_len[NUM_LEARN_1],
     delete[] learned_clauses[i];
     learned_cls_freq[i] = 0; 
   }
-  
+
   return new_learned_end; 
 }

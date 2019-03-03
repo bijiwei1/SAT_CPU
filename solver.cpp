@@ -45,8 +45,8 @@ int main() {
   //for (int i = 1; i <= 5; ++i) { 
     int i = 3;
     auto ts1=std::chrono::high_resolution_clock::now(); 
-    std::string first("./data/uf250/tests/uf250-0");
-//    std::string first("./data/uuf250/tests/uuf250-0");
+    //std::string first("./data/uf250/tests/uf250-0");
+    std::string first("./data/uuf250/tests/uuf250-0");
     std::string f_end(".cnf");
     std::string fileName=first+std::to_string(i)+f_end;
     read_clause_file(fileName, c1, c2, c3, max_size, NUM_VARS, NUM_ORG_CLAUSES);
@@ -599,15 +599,17 @@ if (back_lvl < 22){
             }
 
             learned_cls_freq[conf_learn_cls1] ++;
-            if (learned_cls_freq[conf_learn_cls1] > 20){ 
-              printf("Hot conflict cls %d\n", conf_learn_cls1);
-              learned_end = vacate_learned(learned_clauses, learned_cls_len, learned_cls_freq, learned_end, 20); 
+            if (learned_end >= 3000){ 
+              learned_end = vacate_learned(learned_clauses, learned_cls_len, learned_cls_freq, learned_end, 10); 
+              printf("Vacate learned table, new learned size %d\n", learned_end);
+/*
               for (int i = 0; i <= learned_end; i++){
                 printf("Cls %d \n", i);
                 for (int j = 0; j < learned_cls_len[i]; j++){
                   printf("%d, ", learned_clauses[i][j]);
                 }
-              }
+                printf("\n");
+              }*/
             }
           }//End of if-else
           //printf("Prop conflict due to learned cls1 %d(backvar %d (val %d))\n", conf_learn_cls1, conf_back_var1, var_truth_table[conf_back_var1]);
