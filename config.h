@@ -1,11 +1,12 @@
 #define NUM_TEST 10
 
-#define NUM_TOT_CLAUSES 3000
+//#define NUM_TOT_CLAUSES 3000
 #define NUM_ORG_CLAUSES 1065
 #define NUM_VARS 251
 #define NUM_PE 10
 
-#define NUM_LEARN 3000
+#define NUM_LEARN 4000
+#define NUM_LEARN_1 4001
 
 #define BUF_CLS_SIZE 35
 #define extra_buf_size 20

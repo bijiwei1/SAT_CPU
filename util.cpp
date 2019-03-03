@@ -177,3 +177,46 @@ void read_clause_file(string filename, int *c1, int *c2, int *c3, int *max_size,
   f.close();
   return ;
 }
+
+/*
+void findDecParent(){
+
+  while (!buf_ded_lit.empty()){
+     int curr_ded_lit = buf_ded_lit.back(); 
+     buf_ded_lit.pop_back();
+     par_lit1 = parent_lit[abs(curr_ded_lit)][0];
+     par_lit2 = parent_lit[abs(curr_ded_lit)][1];
+     //printf("Var(%d)- par1 %d , par2 %d\n", curr_ded_lit, par_lit1, par_lit2);
+  
+     vector<int>::iterator it; 
+     if (dec_ded[abs(par_lit1)] == 1){
+       it = find(buf_dec_lit.begin(), buf_dec_lit.end(),par_lit1);
+       if (it == buf_dec_lit.end()){
+         buf_dec_lit.push_back(par_lit1);
+       }
+     }else{
+       it = find(buf_ded_lit.begin(), buf_ded_lit.end(),par_lit1);
+       if (par_lit1 == 0){printf("Error 2 \n");} //FOr debug
+  
+       if (it == buf_ded_lit.end()){
+         buf_ded_lit.push_back(par_lit1);
+       }
+     }
+  
+     if (dec_ded[abs(par_lit2)] == 1){
+       it = find(buf_dec_lit.begin(), buf_dec_lit.end(),par_lit2);
+       if (it == buf_dec_lit.end()){
+         buf_dec_lit.push_back(par_lit2);
+       }
+     }else{
+       it = find(buf_ded_lit.begin(), buf_ded_lit.end(),par_lit2);
+       if (par_lit2 == 0){printf("Error 2 \n");} //FOr debug
+  
+       if (it == buf_ded_lit.end()){
+         buf_ded_lit.push_back(par_lit2);
+       }
+     }
+  }
+
+}
+*/
