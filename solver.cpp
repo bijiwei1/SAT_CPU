@@ -361,7 +361,7 @@ int main() {
         }
         printf("\n");
 */
-        find_decvar(&buf_dec_lit, &buf_ded_lit, parent_lit, dec_ded);
+        find_decvar(buf_dec_lit, buf_ded_lit, parent_lit, dec_ded);
         /*
         while (!buf_ded_lit.empty()){
           int curr_ded_lit = buf_ded_lit.back(); 
@@ -489,7 +489,8 @@ if (back_lvl < 22){
             dec_lvl[i] = -1; 
             dec_ded[i] = 0; 
             parent_cls[i] = -1;
-            parent_lit[i] = {0,0};
+            parent_lit[i][0] = 0;
+            parent_lit[i][1] = 0;
           }
         }
 
@@ -544,7 +545,7 @@ if (back_lvl < 22){
               }
             }
 
-            find_decvar(&buf_dec_lit, &buf_ded_lit, parent_lit, dec_ded);
+            find_decvar(buf_dec_lit, buf_ded_lit, parent_lit, dec_ded);
 
             /*
             while (!buf_ded_lit.empty()){
