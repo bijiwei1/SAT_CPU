@@ -68,6 +68,7 @@ int main() {
   // Clauses
   Clause local_clauses[NUM_ORG_CLAUSES]; 
   vector<Clause> learnt_clauses; 
+  
   // Variable assignment information
   Variable vars[NUM_VARS]; 
 

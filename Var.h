@@ -19,13 +19,11 @@ public:
   int dec_lvl; 
   int parent_cls; 
   vector<int> pos_cls; 
-  vector<int> neg_cls; 
-
+  vector<int> neg_cls;
+  vector<int> learnt_cls;
+ 
   bool dec_ded; //dec - 1, ded - 0
   int conf_cls; 
-
-  vector<int> learnt_cls;
-
   // Default Constructor 
   Variable() 
   { 

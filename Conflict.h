@@ -15,9 +15,11 @@ public:
     }
 
 
-  Clause find_decvar(Variable vars[NUM_VARS], int id){
+  Clause find_decvar(Variable vars[NUM_VARS], int id, vector<int> &learnt_clauses){
     vector<int> buf_ded_lit, buf_dec_lit; 
-    Clause parent = conf_var.parent_cls; 
+    Clause parent = learnt_clauses.at(conf_var.parent_cls);
+    assert(parent_cls >=0) ;
+    
     // Add parents
     for (int i = 0; i < parent.len; i++){
       int par_lit = parent.lits[i]; 
@@ -57,16 +59,16 @@ public:
       for (int i = 0; i < parent.len; i++){
         int par_lit = parent.lits[i];
         if (vars[abs(par_lit)].dec_ded){
-	  it = find(buf_dec_lit.begin(), buf_dec_lit.end(),par_lit);
-	  if (it == buf_dec_lit.end()){
-	    buf_dec_lit.push_back(par_lit);
-	  }
+          it = find(buf_dec_lit.begin(), buf_dec_lit.end(),par_lit);
+          if (it == buf_dec_lit.end()){
+            buf_dec_lit.push_back(par_lit);
+          }
       	}else{
-	  it = find(buf_ded_lit.begin(), buf_ded_lit.end(),par_lit);
-	  if (it == buf_ded_lit.end()){
-	    buf_ded_lit.push_back(par_lit);
-	  }
-	}
+          it = find(buf_ded_lit.begin(), buf_ded_lit.end(),par_lit);
+          if (it == buf_ded_lit.end()){
+            buf_ded_lit.push_back(par_lit);
+          }
+        }
       }
     }
 
