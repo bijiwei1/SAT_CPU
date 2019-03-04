@@ -73,8 +73,9 @@ public:
 	string toString(){
 		string str; 
 		for (int i = 0 ; i < len; i ++){
-			str += to_string(lit) + ", "; 
+			str += to_string(lits[i]) + ", "; 
 		}
+		return str;
 	}
 	
 };

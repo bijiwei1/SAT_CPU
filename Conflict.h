@@ -9,6 +9,11 @@ public:
   Variable conf_var;
   Clause conf_cls;
 
+  Conflict(){
+    conf_cls = NULL;
+    conf_var = 0;
+  }
+
   void set(Variable new_conf_var, Clause new_conf_cls){
     conf_var = new_conf_var;
     conf_cls = new_conf_cls; 
@@ -74,7 +79,7 @@ public:
     }
 
     Clause newcls = new Clause(id, buf_dec_lit.size());
-    for (int i = 0; i < buf_dec_lit.size; i++){
+    for (int i = 0; i < buf_dec_lit.size(); i++){
       newcls.set_value(i, buf_dec_lit.at(i));
     } 
     return newcls; 

@@ -72,7 +72,7 @@ int main() {
   Variable vars[NUM_VARS]; 
 
   //Conflict information
-  Conflict curr_conflict; 
+  Conflict curr_conflict = new Conflict(); 
 
   int conf_learn_cls1;
   int conf_back_var1;
@@ -103,23 +103,23 @@ int main() {
 
 /*************************** Loading Clauses ***************************/
   for (int x = 0; x < NUM_ORG_CLAUSES; ++x) {
-    all_clauses.push_back(new Clause (x, c1[x], c2[x], c3[x]));
+    all_clauses.push_back(new Clause(x, c1[x], c2[x], c3[x]));
 
     if (c1[x] > 0){
       vars[c1[x]].pos_cls.push_back(x);
     }else{
-      vars[-c1[x]].neg_cls.push_back(x)
+      vars[-c1[x]].neg_cls.push_back(x);
     }
 
     if (c2[x] > 0){
       vars[c2[x]].pos_cls.push_back(x);
     }else{
-      vars[-c2[x]].neg_cls.push_back(x)
+      vars[-c2[x]].neg_cls.push_back(x);
     }
     if (c2[x] > 0){
       vars[c2[x]].pos_cls.push_back(x);
     }else{
-      vars[-c2[x]].neg_cls.push_back(x)
+      vars[-c2[x]].neg_cls.push_back(x);
     }
   }
 
@@ -186,7 +186,7 @@ int main() {
 
         if (vars[prop_var].value == T || vars[prop_var].value == F){
           for(int x=0; x < vars[prop_var].neg_cls.size(); ++x) {
-            int cls_idx = vars.neg_cls.at(i);
+            int cls_idx = vars[prop_var].neg_cls.at(i);
             int ded_lit = all_clauses.at(cls_idx).deduct(vars); 
             if (ded_lit == -1){
               state = (vars[prop_var].dec_ded) ? BACKTRACK_DEC : ANALYSIS; 
@@ -201,7 +201,7 @@ int main() {
           }
         }else {
           for(int x=0; x < vars[prop_var].pos_cls.size(); ++x) {
-            int cls_idx = vars.pos_cls.at(i);
+            int cls_idx = vars[prop_var].pos_cls.at(i);
             int ded_lit = all_clauses.at(cls_idx).deduct(vars); 
             if (ded_lit == -1){
               state = (vars[prop_var].dec_ded) ? BACKTRACK_DEC : ANALYSIS; 
@@ -218,7 +218,7 @@ int main() {
         
 
         for (int x = 0; x < vars[prop_var].learnt_clauses.size(); x++){
-          int cls_idx = vars.pos_cls.at(i);
+          int cls_idx = vars[prop_var].pos_cls.at(i);
           int ded_lit = all_clauses.at(cls_idx).deduct(vars); 
           if (ded_lit == -1){
             state = (vars[prop_var].dec_ded) ? BACKTRACK_DEC : ANALYSIS; 
