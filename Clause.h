@@ -3,7 +3,6 @@
 #include <chrono>
 #include <vector>
 
-
 class Clause{
 
 public:
@@ -47,7 +46,6 @@ public:
 	void delete(){
 		delete[] lits; 
 	}
-
 	// return: ded_lit > 0 or ded_lit < -1 : deduction variable ; 
 	//         ded_lit = 0 : sat/ more than 2 unassigned variable ;
 	//         ded_lit = -1 : unsat (because we can never deduct var 1)
@@ -58,7 +56,7 @@ public:
   	for (int i = 0; i < len; i++){
     	int curr_lit = lits[i]; 
     	int curr_var = vars[abs(curr_lit)].value;
-    	sat = ((lit_tmp > 0) && (curr_var == T || curr_var == FT)) || ((lit_tmp < 0) && (curr_var == F || curr_var == TF));
+    	sat = ((curr_lit > 0) && (curr_var == T || curr_var == FT)) || ((curr_lit < 0) && (curr_var == F || curr_var == TF));
     	if (sat){break;}
     	if (curr_var == U){
     		if (num_ded == 1){ break;} //Found 2 unassigned value
@@ -71,4 +69,4 @@ public:
   	return ded_lit;
 	}
 	
-}
+};

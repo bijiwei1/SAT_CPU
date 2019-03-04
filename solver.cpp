@@ -9,6 +9,8 @@
 
 #include <config.h>
 #include <Var.h>
+#include <Clause.h>
+#include <Conflict.h>
 #include <util.cpp>
 
 using namespace std;
@@ -62,17 +64,14 @@ int main() {
 
   int dec_var[BUF_DEC_LVL]= {0}; // Variable idx at each decision lvl, we assume at most 100 decision level
 
-  // Variable assignment information
-  Variable vars[NUM_VARS]; 
 
   // Clauses
   Clause local_clauses[NUM_ORG_CLAUSES]; 
   vector<Clause> learnt_clauses; 
+  // Variable assignment information
+  Variable vars[NUM_VARS]; 
 
   //Conflict information
-  //Variable conf_var;
-  //Clause conf_cls;
-
   Conflict curr_conflict; 
 
   int conf_learn_cls1;
@@ -87,6 +86,7 @@ int main() {
   int back_lvl;
 
   vector<int> buf_dec_lit;
+  vector<int> buf_ded_lit;
   vector<int> buf_dec_lit_sort;
 
   //Temporay variables
@@ -103,24 +103,23 @@ int main() {
 
 /*************************** Loading Clauses ***************************/
   for (int x = 0; x < NUM_ORG_CLAUSES; ++x) {
-    local_clauses.push_back(Clause (x, c1[x], c2[x], c3[x]));
+    local_clauses[x] = new Clause (x, c1[x], c2[x], c3[x]);
 
     if (c1[x] > 0){
-      vars[c1[x]].pos_cls.push_back(local_clauses.back());
+      vars[c1[x]].pos_cls.push_back(x);
     }else{
-      vars[-c1[x]].neg_cls.push_back(local_clauses.back())
+      vars[-c1[x]].neg_cls.push_back(x)
     }
 
     if (c2[x] > 0){
-      vars[c2[x]].pos_cls.push_back(local_clauses.back());
+      vars[c2[x]].pos_cls.push_back(x);
     }else{
-      vars[-c2[x]].neg_cls.push_back(local_clauses.back())
+      vars[-c2[x]].neg_cls.push_back(x)
     }
-
-    if (c3[x] > 0){
-      vars[c3[x]].pos_cls.push_back(local_clauses.back());
+    if (c2[x] > 0){
+      vars[c2[x]].pos_cls.push_back(x);
     }else{
-      vars[-c3[x]].neg_cls.push_back(local_clauses.back())
+      vars[-c2[x]].neg_cls.push_back(x)
     }
   }
 
@@ -131,13 +130,13 @@ int main() {
   for (int x = 1; x < NUM_VARS; x++){
     printf("Var (%d) Pos cls : ", x);
     for (int y = 0; y < vars[x].pos_cls.size(); y++){
-      printf("%d, ", vars[x].pos_cls.id);
+      printf("%d, ", vars[x].pos_cls.at(y));
     }
     printf("\n");
 
     printf("Var (%d) Neg cls : ", x);
     for (int y = 0; y < vars[x].neg_cls.size(); y++){
-      printf("%d, ", vars[x].neg_cls.id);
+      printf("%d, ", vars[x].neg_cls.at(y));
     }
     printf("\n");
   }
@@ -239,7 +238,8 @@ int main() {
         prev_state = ANALYSIS; 
         buf_dec_lit.clear(); 
         curr_conflict.find_decvar(&buf_dec_lit, vars); 
-        learnt_clauses.push_back(find_decvar(vector<int> &buf_dec_lit, Variable vars[NUM_VARS], int id)); 
+        int new_id = learnt_clauses.size();
+        learnt_clauses.push_back(curr_conflict.find_decvar(vars, new_id)); 
         learnt_clauses.back().print(); 
         state = BACKTRACK_DEC; 
         break; 
@@ -253,13 +253,7 @@ int main() {
         printf("Solved\n");
         tot_conflict = 0;
         for (int x = 0; x < NUM_ORG_CLAUSES; x++){
-          int l1_tmp = local_clauses[x][0];
-          int l2_tmp = local_clauses[x][1];
-          int l3_tmp = local_clauses[x][2];
-          bool unsat1 = l1_tmp >0 ? (vars[l1_tmp].value == F || vars[l1_tmp].value == TF) : (vars[-l1_tmp].value == T || vars[-l1_tmp].value == FT);
-          bool unsat2 = l2_tmp >0 ? (vars[l2_tmp].value == F || vars[l2_tmp].value == TF) : (vars[-l2_tmp].value == T || vars[-l2_tmp].value == FT);
-          bool unsat3 = l3_tmp >0 ? (vars[l3_tmp].value == F || vars[l3_tmp].value == TF) : (vars[-l3_tmp].value == T || vars[-l3_tmp].value == FT);
-          tot_conflict |= (unsat1 && unsat2 && unsat3);
+          
         }
 
         for (int x = 1; x < NUM_VARS; x++){
