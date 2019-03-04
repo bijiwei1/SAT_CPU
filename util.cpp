@@ -90,6 +90,8 @@ void read_clause_file(string filename, int *c1, int *c2, int *c3, int *max_size,
   return ;
 }
 
+/*
+
 int vacate_learned(int** learned_clauses, int learned_cls_len[NUM_LEARN_1], 
     int learned_cls_freq[NUM_LEARN_1], int learned_end, int freq){
 
@@ -111,6 +113,7 @@ int vacate_learned(int** learned_clauses, int learned_cls_len[NUM_LEARN_1],
 
   return new_learned_end; 
 }
+*/
 
 /*
 void find_decvar(Variable vars[NUM_VARS], int id, vector<Clause> &learnt_clauses, Clause* newcls){

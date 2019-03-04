@@ -7,51 +7,49 @@ class Clause{
 
 public:
 	int id; 
-	int* lits;
-	int len; 
+	Vector<Variable*> lits; //This variable without sign
+	Vector<bool> sign; 
 	int freq;
 	bool islearnt; 
 	
-	Clause(int new_id, int new_len){
-		id = new_id; 
-		len = new_len;
-		lits = new int[len]; 
+	Clause(int _id){
+		id = _id;  
 		freq = 0; 
 		islearnt = 1; 
 	}
 
-	Clause(int new_id, int c1, int c2, int c3){
-		id = new_id; 
-		lits = new int[3];
-		lits[0] = c1;
-		lits[1] = c2; 
-		lits[2] = c3;
+	Clause(int _id, Variable* c1, Variable* c2, Variable* c3, bool sign1, bool sign2, bool sign3){
+		id = _id; 
+		lits.push_back(c1);
+		lits.push_back(c2);
+		lits.push_back(c3);
+		sign.push_back(sign1);
+		sign.push_back(sign2);
+		sign.push_back(sign3);
 		len = 3; 
 		islearnt = 0;
 		freq = 0; 
 	}
 
-	void set_value(int idx, vector<int> &buf_dec_lit){
-		for(int i = 0; i < len; i++){
-			lits[idx] = buf_dec_lit.at(i);
-		}
+	void addLit(Variable* _lits, bool _sign){
+		lits.push_back(_lits);
+		sign.push_back(_sign);
 	}
 
+/*
 	void print(){
 		printf("Clause is : ");
 		for (int i = 0; i < len; i++){
 			printf("%d, \n", lits[i]);
 		}
 		printf("\n");
-	}	
-
-	void delete_lit(){
-		delete[] lits; 
-	}
+	}	*/
 
 	// return: ded_lit > 0 or ded_lit < -1 : deduction variable ; 
 	//         ded_lit = 0 : sat/ more than 2 unassigned variable ;
 	//         ded_lit = -1 : unsat (because we can never deduct var 1)
+
+	/*
 	int deduct(Variable vars[NUM_VARS]) {
 		bool sat = 0; 
 		int ded_lit = 0;
@@ -71,11 +69,15 @@ public:
   	ded_lit = (~sat) ? -1 : (num_ded > 1) ? 0 : ded_lit;
   	return ded_lit;
 	}
-
+*/
 	string toString(){
 		string str; 
-		for (int i = 0 ; i < len; i ++){
-			str += to_string(lits[i]) + ", "; 
+		for (int i = 0 ; i < lits.size(); i ++){
+			Variable* curr_var = lits.at(i); 
+			if (!sign[i]){
+				str += "-";
+			}
+			str += to_string(curr_var-> get_id()) + ", "; 
 		}
 		return str;
 	}
@@ -83,14 +85,6 @@ public:
 
 	int get_id(){
 		return id;
-	}
-
-	int* get_lits(){
-		return lits; 
-	}
-
-	int get_len(){
-		return len;
 	}
 
 	int get_freq(){

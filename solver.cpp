@@ -62,17 +62,14 @@ int main() {
   int dec_var[BUF_DEC_LVL]= {0}; // Variable idx at each decision lvl, we assume at most 100 decision level
 
   // Clauses
-  //Clause local_clauses[NUM_ORG_CLAUSES]; 
-  vector<Clause> all_clauses; 
+  vector<Clause*> all_clauses; 
 
   // Variable assignment information
   Variable vars[NUM_VARS]; 
 
   //Conflict information
-  //Variable *conf_var;
-  //Clause *conf_cls;
-  int conf_var;
-  int conf_cls;
+  Variable *conf_var;
+  Clause *conf_cls;
 
   int conf_learn_cls1;
   int conf_back_var1;
@@ -100,11 +97,12 @@ int main() {
 
   vector<int>::iterator it; 
 /*************************** Intializing  ******************************/
-
+  for (int i = 0; i < NUM_VARS; i++){
+    vars[i].set_id(i);
+  }
 
 /*************************** Loading Clauses ***************************/
   for (int x = 0; x < NUM_ORG_CLAUSES; ++x) {
-    all_clauses.push_back(Clause(x, c1[x], c2[x], c3[x]));
 
     if (c1[x] > 0){
       vars[c1[x]].pos_cls.push_back(x);
@@ -122,6 +120,9 @@ int main() {
     }else{
       vars[-c2[x]].neg_cls.push_back(x);
     }
+
+    Clause* new_cls = new Clause(x, vars[abs(c1)], vars[abs(c2)], vars[abs(c3)]);
+    all_clauses.push_back(new_cls);
   }
 
   free(c1);
@@ -142,11 +143,13 @@ int main() {
     printf("\n");
   }
 
+  printf("All clauses\n");
   for (int x; x < NUM_ORG_CLAUSES; x++){
     all_clauses.at(x).to_string(); 
   }
 
 /********************************* FSM **********************************/
+  /*
   while (state != EXIT){
     switch(state){
       case DECISION: 
@@ -347,6 +350,7 @@ int main() {
         break;
     }//end of sw
   }//end of while
+  */
 
 
 // End here
