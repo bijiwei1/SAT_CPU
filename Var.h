@@ -17,14 +17,16 @@ class Variable {
 public: 
   char value;  // T, F, U (Undef), TF(assigned to T first), FT(assigned to F first)
   int dec_lvl; 
-  int parent_cls; 
-  int parent_lit[2]; 
+  Clause parent_cls; 
+  vector<Clause> pos_cls; 
+  vector<Clause> neg_cls; 
+  //int pos_cls_len; 
+  //int neg_cls_len; 
+
   bool dec_ded; //dec - 1, ded - 0
-  int* pos_cls;
-  int* neg_cls;  
-  int pos_cls_nxtidx; 
-  int neg_cls_nxtidx; 
   int conf_cls; 
+
+  vector<Clause> learnt_cls;
 
   // Default Constructor 
   Variable() 
@@ -32,8 +34,8 @@ public:
     value = U; 
     dec_lvl = -1; 
     parent_cls = -1;
-    parent_lit[0] = 0;
-    parent_lit[1] = 0;
+    //parent_lit[0] = 0;
+    //parent_lit[1] = 0;
     dec_ded = 1; 
     conf_cls = -1;
   } 
@@ -42,23 +44,27 @@ public:
     value = U; 
     dec_lvl = -1; 
     parent_cls = -1;
-    parent_lit[0] = 0;
-    parent_lit[1] = 0;
+    //parent_lit[0] = 0;
+    //parent_lit[1] = 0;
     dec_ded = 1;
     conf_cls = -1; 
   }
 
-  void assignment(int newval, int dec_lvl_new, int parent_cls_new, int parent_lit1, int parent_lit2, int dec_ded_new){
-    value = newval; 
+  void assignment(int new_value, int dec_lvl_new, Clause parent_cls_new, int dec_ded_new){
+    value = new_value; 
     dec_lvl = dec_lvl_new; 
     parent_cls = parent_cls_new;
-    parent_lit[0] = parent_lit1;
-    parent_lit[1] = parent_lit2;
     dec_ded = dec_ded_new;
   }
   
   void print(){
     printf("value %d, par_cls(%d), par1(%d), par2(%d) \n", value, parent_cls, parent_lit[0], parent_lit[1]);
   }
+
+  void addLearntCls(Clause new_learnt_cls){
+    learnt_cls.push_back(new_learnt_cls); 
+  }
+
+
 
 };
