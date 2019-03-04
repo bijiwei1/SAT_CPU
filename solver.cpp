@@ -240,10 +240,11 @@ int main() {
       case ANALYSIS:
         prev_state = ANALYSIS; 
         buf_dec_lit.clear(); 
-        curr_conflict.find_decvar(&buf_dec_lit, vars); 
+        int* newcls; 
+        curr_conflict.find_decvar(&buf_dec_lit, vars, newcls); 
         int new_id = learnt_clauses.size();
         learnt_clauses.push_back(curr_conflict.find_decvar(vars, new_id)); 
-        learnt_clauses.back().print(); 
+        learnt_clauses.back().print(); //Check it is added to vector
         state = BACKTRACK_DEC; 
         break; 
 

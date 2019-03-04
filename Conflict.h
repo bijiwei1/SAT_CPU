@@ -20,7 +20,7 @@ public:
     }
 
 
-  Clause find_decvar(Variable vars[NUM_VARS], int id, vector<Clause> &learnt_clauses){
+  void find_decvar(Variable vars[NUM_VARS], int id, vector<Clause> &learnt_clauses, Clause* newcls){
     vector<int> buf_ded_lit, buf_dec_lit; 
     Clause parent = learnt_clauses.at(conf_var.parent_cls);
     assert(conf_var.parent_cls >=0) ;
@@ -78,11 +78,10 @@ public:
       }
     }
 
-    Clause newcls = new Clause(id, buf_dec_lit.size());
+    newcls = new Clause(id, buf_dec_lit.size());
     for (int i = 0; i < buf_dec_lit.size(); i++){
       newcls.set_value(i, buf_dec_lit.at(i));
-    } 
-    return newcls; 
+    }  
   }//End of func
 
 };//End of class
