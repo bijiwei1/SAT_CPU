@@ -113,42 +113,67 @@ int vacate_learned(int** learned_clauses, int learned_cls_len[NUM_LEARN_1],
 }
 
 
-/*
-void find_decvar(vector<int> &buf_dec_lit, vector<int> &buf_ded_lit, Variable vars[NUM_VARS]){
+void find_decvar(Variable vars[NUM_VARS], int id, vector<Clause> &learnt_clauses, Clause* newcls){
+  vector<int> buf_ded_lit, buf_dec_lit; 
+  Clause parent = learnt_clauses.at(conf_var->get_parent_cls());
+  assert(conf_var->get_parent_cls() >=0) ;
 
-  int par_lit1, par_lit2; 
-   while (!buf_ded_lit.empty()){
-      int curr_ded_lit = buf_ded_lit.back(); 
-      buf_ded_lit.pop_back();
-      par_lit1 = vars[abs(curr_ded_lit)].parent_lit[0];
-      par_lit2 = vars[abs(curr_ded_lit)].parent_lit[1];
-      //printf("Var(%d)- par1 %d , par2 %d\n", curr_ded_lit, par_lit1, par_lit2);
-
-      vector<int>::iterator it; 
-      if (vars[abs(par_lit1)].dec_ded){
-        it = find(buf_dec_lit.begin(), buf_dec_lit.end(),par_lit1);
-        if (it == buf_dec_lit.end()){
-          buf_dec_lit.push_back(par_lit1);
-        }
-      }else{
-        it = find(buf_ded_lit.begin(), buf_ded_lit.end(),par_lit1);
-        if (it == buf_ded_lit.end()){
-          buf_ded_lit.push_back(par_lit1);
-        }
+  vector<int>::iterator it; 
+  // Add parents
+  for (int i = 0; i < parent.len; i++){
+    int par_lit = parent.lits[i]; 
+    if (vars[abs(par_lit)].dec_ded){
+      it = find(buf_dec_lit.begin(), buf_dec_lit.end(),par_lit);
+      if (it == buf_dec_lit.end()){
+        buf_dec_lit.push_back(par_lit);
       }
+    }else{
+      it = find(buf_ded_lit.begin(), buf_ded_lit.end(),par_lit);
+      if (it == buf_ded_lit.end()){
+        buf_ded_lit.push_back(par_lit);
+      }
+    }
+  }
 
-      if (vars[abs(par_lit2)].dec_ded){
-        it = find(buf_dec_lit.begin(), buf_dec_lit.end(),par_lit2);
+    // Add conflicts
+    for (int i = 0; i < conf_cls.len; i++){
+      int par_lit = conf_cls.lits[i]; 
+      if (vars[abs(par_lit)].dec_ded){
+        it = find(buf_dec_lit.begin(), buf_dec_lit.end(),par_lit);
         if (it == buf_dec_lit.end()){
-          buf_dec_lit.push_back(par_lit2);
+          buf_dec_lit.push_back(par_lit);
         }
       }else{
-        it = find(buf_ded_lit.begin(), buf_ded_lit.end(),par_lit2);
+        it = find(buf_ded_lit.begin(), buf_ded_lit.end(),par_lit);
         if (it == buf_ded_lit.end()){
-          buf_ded_lit.push_back(par_lit2);
+          buf_ded_lit.push_back(par_lit);
         }
       }
     }
 
-}
-*/
+    while (!buf_ded_lit.empty()){
+      int curr_ded_lit = buf_ded_lit.back(); 
+      buf_ded_lit.pop_back();
+      parent = learnt_clauses.at(vars[abs(curr_ded_lit)].parent_cls); 
+      for (int i = 0; i < parent.len; i++){
+        int par_lit = parent.lits[i];
+        if (vars[abs(par_lit)].dec_ded){
+          it = find(buf_dec_lit.begin(), buf_dec_lit.end(),par_lit);
+          if (it == buf_dec_lit.end()){
+            buf_dec_lit.push_back(par_lit);
+          }
+        }else{
+          it = find(buf_ded_lit.begin(), buf_ded_lit.end(),par_lit);
+          if (it == buf_ded_lit.end()){
+            buf_ded_lit.push_back(par_lit);
+          }
+        }
+      }
+    }
+
+    newcls = new Clause(id, buf_dec_lit.size());
+    for (int i = 0; i < buf_dec_lit.size(); i++){
+      newcls.set_value(i, buf_dec_lit.at(i));
+    }  
+    
+  }//End of func

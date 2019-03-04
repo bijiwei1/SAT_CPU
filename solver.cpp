@@ -10,7 +10,6 @@
 #include <config.h>
 #include <Var.h>
 #include <Clause.h>
-#include <Conflict.h>
 #include <util.cpp>
 
 using namespace std;
@@ -72,7 +71,8 @@ int main() {
   Variable vars[NUM_VARS]; 
 
   //Conflict information
-  Conflict curr_conflict = new Conflict(); 
+  Variable *conf_var;
+  Clause *conf_cls;
 
   int conf_learn_cls1;
   int conf_back_var1;
@@ -190,7 +190,8 @@ int main() {
             int ded_lit = all_clauses.at(cls_idx).deduct(vars); 
             if (ded_lit == -1){
               state = (vars[prop_var].dec_ded) ? BACKTRACK_DEC : ANALYSIS; 
-              curr_conflict.set(vars[prop_var], vars.neg_cls.at(i)); 
+              conf_var = &vars[prop_var];
+              conf_cls = &vars.neg_cls.at(i); 
               buf_ded_lit.clear();
               break;
             }else if (ded_lit != 0){
@@ -205,7 +206,8 @@ int main() {
             int ded_lit = all_clauses.at(cls_idx).deduct(vars); 
             if (ded_lit == -1){
               state = (vars[prop_var].dec_ded) ? BACKTRACK_DEC : ANALYSIS; 
-              curr_conflict.set(vars[prop_var], vars.pos_cls.at(i)); 
+              conf_var = &vars[prop_var];
+              conf_cls = &vars.pos_cls.at(i);
               buf_ded_lit.clear();
               break; 
             }else if (ded_lit != 0){
@@ -222,7 +224,8 @@ int main() {
           int ded_lit = all_clauses.at(cls_idx).deduct(vars); 
           if (ded_lit == -1){
             state = (vars[prop_var].dec_ded) ? BACKTRACK_DEC : ANALYSIS; 
-            curr_conflict.set(vars[prop_var], vars.learnt_clauses.at(i));
+            conf_var = &vars[prop_var]; 
+            conf_cls = &vars.learnt_clauses.at(i); 
             buf_ded_lit.clear();
             break; 
           }else if (ded_lit != 0){
@@ -240,10 +243,10 @@ int main() {
       case ANALYSIS:
         prev_state = ANALYSIS; 
         buf_dec_lit.clear(); 
-        int* newcls; 
-        curr_conflict.find_decvar(&buf_dec_lit, vars, newcls); 
-        int new_id = learnt_clauses.size();
-        learnt_clauses.push_back(curr_conflict.find_decvar(vars, new_id)); 
+        Clause* newcls; 
+        find_decvar(vars, learnt_clauses.size(), learnt_clauses, newcls);
+        find_decvar(&buf_dec_lit, vars, newcls); 
+        learnt_clauses.push_back(); 
         learnt_clauses.back().print(); //Check it is added to vector
         state = BACKTRACK_DEC; 
         break; 
