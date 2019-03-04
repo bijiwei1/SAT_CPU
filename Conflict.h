@@ -6,15 +6,10 @@
 class Conflict{
 
 public:
-  Variable conf_var;
-  Clause conf_cls;
+  Variable *conf_var;
+  Clause *conf_cls;
 
-  Conflict(){
-    conf_cls = NULL;
-    conf_var = 0;
-  }
-
-  void set(Variable new_conf_var, Clause new_conf_cls){
+  void set(Variable &new_conf_var, Clause &new_conf_cls){
     conf_var = new_conf_var;
     conf_cls = new_conf_cls; 
     }
@@ -22,8 +17,8 @@ public:
 
   void find_decvar(Variable vars[NUM_VARS], int id, vector<Clause> &learnt_clauses, Clause* newcls){
     vector<int> buf_ded_lit, buf_dec_lit; 
-    Clause parent = learnt_clauses.at(conf_var.parent_cls);
-    assert(conf_var.parent_cls >=0) ;
+    Clause parent = learnt_clauses.at(conf_var->get_parent_cls());
+    assert(conf_var->get_parent_cls() >=0) ;
 
     vector<int>::iterator it; 
     // Add parents

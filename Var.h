@@ -57,6 +57,10 @@ public:
     learnt_cls.push_back(new_learnt_cls); 
   }
 
+  int get_parent_cls(){
+    return parent_cls; 
+  }
+
 
 
 };
