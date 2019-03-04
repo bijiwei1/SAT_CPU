@@ -27,8 +27,6 @@ void read_clause_file(string filename, int *c1, int *c2, int *c3,  int *max_size
 int vacate_learned(int** learned_clauses, int learned_cls_len[NUM_LEARN_1], 
     int learned_cls_freq[NUM_LEARN_1], int learned_end, int freq);
 
-void find_decvar(vector<int> &buf_dec_lit, vector<int> &buf_ded_lit, Variable vars[NUM_VARS]);
-
 int deduct(int* clause, int cls_size, Variable vars[NUM_VARS]);
 
 int main() {
@@ -71,8 +69,10 @@ int main() {
   Variable vars[NUM_VARS]; 
 
   //Conflict information
-  Variable *conf_var;
-  Clause *conf_cls;
+  //Variable *conf_var;
+  //Clause *conf_cls;
+  int conf_var;
+  int conf_cls;
 
   int conf_learn_cls1;
   int conf_back_var1;
@@ -190,8 +190,10 @@ int main() {
             int ded_lit = all_clauses.at(cls_idx).deduct(vars); 
             if (ded_lit == -1){
               state = (vars[prop_var].dec_ded) ? BACKTRACK_DEC : ANALYSIS; 
-              conf_var = &vars[prop_var];
-              conf_cls = &vars.neg_cls.at(i); 
+              //conf_var = &vars[prop_var];
+              //conf_cls = &vars.neg_cls.at(i); 
+              conf_var = prop_var;
+              conf_cls = vars.neg_cls.at(i).id;
               buf_ded_lit.clear();
               break;
             }else if (ded_lit != 0){
@@ -206,8 +208,10 @@ int main() {
             int ded_lit = all_clauses.at(cls_idx).deduct(vars); 
             if (ded_lit == -1){
               state = (vars[prop_var].dec_ded) ? BACKTRACK_DEC : ANALYSIS; 
-              conf_var = &vars[prop_var];
-              conf_cls = &vars.pos_cls.at(i);
+              //conf_var = &vars[prop_var];
+              //conf_cls = &vars.pos_cls.at(i);
+              conf_var = prop_var;
+              conf_cls = vars.pos_cls.at(i).id;
               buf_ded_lit.clear();
               break; 
             }else if (ded_lit != 0){
@@ -224,8 +228,10 @@ int main() {
           int ded_lit = all_clauses.at(cls_idx).deduct(vars); 
           if (ded_lit == -1){
             state = (vars[prop_var].dec_ded) ? BACKTRACK_DEC : ANALYSIS; 
-            conf_var = &vars[prop_var]; 
-            conf_cls = &vars.learnt_clauses.at(i); 
+            //conf_var = &vars[prop_var]; 
+            //conf_cls = &vars.learnt_clauses.at(i); 
+            conf_var = prop_var;
+            conf_cls = vars.learnt_clauses.at(i).id;
             buf_ded_lit.clear();
             break; 
           }else if (ded_lit != 0){
@@ -243,16 +249,72 @@ int main() {
       case ANALYSIS:
         prev_state = ANALYSIS; 
         buf_dec_lit.clear(); 
-        Clause* newcls; 
-        find_decvar(vars, learnt_clauses.size(), learnt_clauses, newcls);
-        find_decvar(&buf_dec_lit, vars, newcls); 
-        learnt_clauses.push_back(); 
-        learnt_clauses.back().print(); //Check it is added to vector
+
+        vector<int>::iterator it; 
+
+
+        // Add parents
+        for (int i = 0; i < all_clauses.at(vars[conf_vars].parent_cls).len; i++){
+          int par_lit = all_clauses.at(vars[conf_vars].parent_cls).lits[i]; 
+          if (abs(par_lit) == conf_vars){ continue; }  
+          if (vars[abs(par_lit)].dec_ded){
+            it = find(buf_dec_lit.begin(), buf_dec_lit.end(),par_lit);
+            if (it == buf_dec_lit.end()){
+              buf_dec_lit.push_back(par_lit);
+            }
+          }else{
+            it = find(buf_ded_lit.begin(), buf_ded_lit.end(),par_lit);
+            if (it == buf_ded_lit.end()){
+              buf_ded_lit.push_back(par_lit);
+            }
+          }
+        }
+
+        // Add conf_cls 
+        for (int i = 0; i < all_clauses.at(conf_cls).len; i++){
+          int par_lit = all_clauses.at(conf_cls).lits[i]; 
+          if (abs(par_lit) == conf_vars){ continue; }  
+          if (vars[abs(par_lit)].dec_ded){
+            it = find(buf_dec_lit.begin(), buf_dec_lit.end(),par_lit);
+            if (it == buf_dec_lit.end()){
+              buf_dec_lit.push_back(par_lit);
+            }
+          }else{
+            it = find(buf_ded_lit.begin(), buf_ded_lit.end(),par_lit);
+            if (it == buf_ded_lit.end()){
+              buf_ded_lit.push_back(par_lit);
+            }
+          }
+        }
+
+        while (!buf_ded_lit.empty()){
+          int curr_ded_lit = buf_ded_lit.back(); 
+          buf_ded_lit.pop_back();
+          parent = learnt_clauses.at(vars[abs(curr_ded_lit)].parent_cls); 
+          for (int i = 0; i < parent.len; i++){
+            int par_lit = parent.lits[i];
+            if (vars[abs(par_lit)].dec_ded){
+              it = find(buf_dec_lit.begin(), buf_dec_lit.end(),par_lit);
+              if (it == buf_dec_lit.end()){
+                buf_dec_lit.push_back(par_lit);
+              }
+            }else{
+              it = find(buf_ded_lit.begin(), buf_ded_lit.end(),par_lit);
+              if (it == buf_ded_lit.end()){
+                buf_ded_lit.push_back(par_lit);
+              }
+            }
+          }
+        }
+
+        int nxtidx = all_clauses.size();
+        all_clauses.push_back(new Clause(nxtidx, buf_dec_lit.size())); 
+        all_clauses.set_value(buf_dec_lit);
+        all_clauses.back().print(); //Check it is added to vector
         state = BACKTRACK_DEC; 
         break; 
 
       case BACKTRACK_DEC: 
-
         state = FAILED; 
         break ;
 

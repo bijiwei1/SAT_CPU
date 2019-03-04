@@ -31,8 +31,10 @@ public:
 		freq = 0; 
 	}
 
-	void set_value(int idx, int lit){
-		lits[idx] = lit; 
+	void set_value(int idx, vector<int> &buf_dec_lit){
+		for(int i = 0; i < len; i++){
+			lits[idx] = buf_dec_lit.at(i);
+		}
 	}
 
 	void print(){
@@ -78,4 +80,25 @@ public:
 		return str;
 	}
 	
+
+	int get_id(){
+		return id;
+	}
+
+	int* get_lits(){
+		return lits; 
+	}
+
+	int get_len(){
+		return len;
+	}
+
+	int get_freq(){
+		return freq();
+	}
+
+	bool get_islearnt(){
+		return islearnt; 
+	}
+
 };
