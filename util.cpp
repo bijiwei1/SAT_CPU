@@ -113,6 +113,7 @@ int vacate_learned(int** learned_clauses, int learned_cls_len[NUM_LEARN_1],
 }
 
 
+/*
 void find_decvar(vector<int> &buf_dec_lit, vector<int> &buf_ded_lit, Variable vars[NUM_VARS]){
 
   int par_lit1, par_lit2; 
@@ -150,3 +151,4 @@ void find_decvar(vector<int> &buf_dec_lit, vector<int> &buf_ded_lit, Variable va
     }
 
 }
+*/

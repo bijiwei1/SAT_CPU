@@ -64,11 +64,10 @@ int main() {
 
   int dec_var[BUF_DEC_LVL]= {0}; // Variable idx at each decision lvl, we assume at most 100 decision level
 
-
   // Clauses
-  Clause local_clauses[NUM_ORG_CLAUSES]; 
-  vector<Clause> learnt_clauses; 
-  
+  //Clause local_clauses[NUM_ORG_CLAUSES]; 
+  vector<Clause> all_clauses; 
+
   // Variable assignment information
   Variable vars[NUM_VARS]; 
 
@@ -104,7 +103,7 @@ int main() {
 
 /*************************** Loading Clauses ***************************/
   for (int x = 0; x < NUM_ORG_CLAUSES; ++x) {
-    local_clauses[x] = new Clause (x, c1[x], c2[x], c3[x]);
+    all_clauses.push_back(new Clause (x, c1[x], c2[x], c3[x]));
 
     if (c1[x] > 0){
       vars[c1[x]].pos_cls.push_back(x);
@@ -143,7 +142,7 @@ int main() {
   }
 
   for (int x; x < NUM_ORG_CLAUSES; x++){
-    local_clauses.print(); 
+    all_clauses.at(x).to_string(); 
   }
 
 /********************************* FSM **********************************/
@@ -187,7 +186,8 @@ int main() {
 
         if (vars[prop_var].value == T || vars[prop_var].value == F){
           for(int x=0; x < vars[prop_var].neg_cls.size(); ++x) {
-            int ded_lit = vars.neg_cls.at(i).deduct(vars); 
+            int cls_idx = vars.neg_cls.at(i);
+            int ded_lit = all_clauses.at(cls_idx).deduct(vars); 
             if (ded_lit == -1){
               state = (vars[prop_var].dec_ded) ? BACKTRACK_DEC : ANALYSIS; 
               curr_conflict.set(vars[prop_var], vars.neg_cls.at(i)); 
@@ -201,7 +201,8 @@ int main() {
           }
         }else {
           for(int x=0; x < vars[prop_var].pos_cls.size(); ++x) {
-            int ded_lit = vars.pos_cls.at(i).deduct(vars); 
+            int cls_idx = vars.pos_cls.at(i);
+            int ded_lit = all_clauses.at(cls_idx).deduct(vars); 
             if (ded_lit == -1){
               state = (vars[prop_var].dec_ded) ? BACKTRACK_DEC : ANALYSIS; 
               curr_conflict.set(vars[prop_var], vars.pos_cls.at(i)); 
@@ -217,7 +218,8 @@ int main() {
         
 
         for (int x = 0; x < vars[prop_var].learnt_clauses.size(); x++){
-          int ded_lit = vars.learnt_clauses.at(i).deduct(vars); 
+          int cls_idx = vars.pos_cls.at(i);
+          int ded_lit = all_clauses.at(cls_idx).deduct(vars); 
           if (ded_lit == -1){
             state = (vars[prop_var].dec_ded) ? BACKTRACK_DEC : ANALYSIS; 
             curr_conflict.set(vars[prop_var], vars.learnt_clauses.at(i));

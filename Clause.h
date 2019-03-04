@@ -43,15 +43,16 @@ public:
 		printf("\n");
 	}	
 
-	void delete(){
+	void delete_lit(){
 		delete[] lits; 
 	}
+
 	// return: ded_lit > 0 or ded_lit < -1 : deduction variable ; 
 	//         ded_lit = 0 : sat/ more than 2 unassigned variable ;
 	//         ded_lit = -1 : unsat (because we can never deduct var 1)
 	int deduct(Variable vars[NUM_VARS]) {
 		bool sat = 0; 
-  	int ded_lit = 0;
+		int ded_lit = 0;
   	int num_ded = 0;  
   	for (int i = 0; i < len; i++){
     	int curr_lit = lits[i]; 
@@ -67,6 +68,13 @@ public:
 
   	ded_lit = (~sat) ? -1 : (num_ded > 1) ? 0 : ded_lit;
   	return ded_lit;
+	}
+
+	string toString(){
+		string str; 
+		for (int i = 0 ; i < len; i ++){
+			str += to_string(lit) + ", "; 
+		}
 	}
 	
 };
