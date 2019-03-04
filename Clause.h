@@ -94,7 +94,7 @@ public:
 	}
 
 	int get_freq(){
-		return freq();
+		return freq;
 	}
 
 	bool get_islearnt(){

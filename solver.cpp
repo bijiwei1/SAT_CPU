@@ -98,12 +98,13 @@ int main() {
   bool sat_tmp;
   int newval;
 
+  vector<int>::iterator it; 
 /*************************** Intializing  ******************************/
 
 
 /*************************** Loading Clauses ***************************/
   for (int x = 0; x < NUM_ORG_CLAUSES; ++x) {
-    all_clauses.push_back(new Clause(x, c1[x], c2[x], c3[x]));
+    all_clauses.push_back(Clause(x, c1[x], c2[x], c3[x]));
 
     if (c1[x] > 0){
       vars[c1[x]].pos_cls.push_back(x);
@@ -193,7 +194,7 @@ int main() {
               //conf_var = &vars[prop_var];
               //conf_cls = &vars.neg_cls.at(i); 
               conf_var = prop_var;
-              conf_cls = vars.neg_cls.at(i).id;
+              conf_cls = vars[prop_var].neg_cls.at(i).id;
               buf_ded_lit.clear();
               break;
             }else if (ded_lit != 0){
@@ -211,7 +212,7 @@ int main() {
               //conf_var = &vars[prop_var];
               //conf_cls = &vars.pos_cls.at(i);
               conf_var = prop_var;
-              conf_cls = vars.pos_cls.at(i).id;
+              conf_cls = vars[prop_var].pos_cls.at(i).id;
               buf_ded_lit.clear();
               break; 
             }else if (ded_lit != 0){
@@ -223,7 +224,7 @@ int main() {
         }
         
 
-        for (int x = 0; x < vars[prop_var].learnt_clauses.size(); x++){
+        for (int x = 0; x < vars[prop_var].learnt_cls.size(); x++){
           int cls_idx = vars[prop_var].pos_cls.at(i);
           int ded_lit = all_clauses.at(cls_idx).deduct(vars); 
           if (ded_lit == -1){
@@ -231,12 +232,12 @@ int main() {
             //conf_var = &vars[prop_var]; 
             //conf_cls = &vars.learnt_clauses.at(i); 
             conf_var = prop_var;
-            conf_cls = vars.learnt_clauses.at(i).id;
+            conf_cls = vars[prop_var].learnt_cls.at(i).id;
             buf_ded_lit.clear();
             break; 
           }else if (ded_lit != 0){
             int newval = ded_lit > 0 ? T : F;
-            vars[abs(ded_lit)].assignment(newval, curr_lvl, vars.learnt_clauses.at(i), 0); 
+            vars[abs(ded_lit)].assignment(newval, curr_lvl, vars.learnt_cls.at(i), 0); 
             buf_ded_lit.push_back(abs(ded_lit));
           }
         }
@@ -250,7 +251,6 @@ int main() {
         prev_state = ANALYSIS; 
         buf_dec_lit.clear(); 
 
-        vector<int>::iterator it; 
 
 
         // Add parents
@@ -290,9 +290,8 @@ int main() {
         while (!buf_ded_lit.empty()){
           int curr_ded_lit = buf_ded_lit.back(); 
           buf_ded_lit.pop_back();
-          parent = learnt_clauses.at(vars[abs(curr_ded_lit)].parent_cls); 
-          for (int i = 0; i < parent.len; i++){
-            int par_lit = parent.lits[i];
+          for (int i = 0; i < all_clauses[var[abs(curr_ded_lit)].parent_cls].len; i++){
+            int par_lit = all_clauses[var[abs(curr_ded_lit).parent_cls]].lits[i];
             if (vars[abs(par_lit)].dec_ded){
               it = find(buf_dec_lit.begin(), buf_dec_lit.end(),par_lit);
               if (it == buf_dec_lit.end()){
